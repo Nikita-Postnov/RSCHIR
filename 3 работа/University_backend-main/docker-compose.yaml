@@ -1,0 +1,40 @@
+version: '3'
+services:
+  db:
+    image: mysql:latest
+    container_name: db
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./databases:/docker-entrypoint-initdb.d
+      - db_volume:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 1s
+      retries: 10
+
+  apache:
+    build: './php-apache'
+    volumes:
+      - ./public_html:/home/public_hyml
+      - ./conf/000-default.conf:/etc/appache2/sites-enabled/000-default.conf
+    ports:
+      - "8080:80"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./conf/default.conf:/etc/nginx/conf.d/nginx.conf
+      - ./nginx-public_html:/home/public_html
+    ports:
+      - "8000:80"
+    depends_on:
+      - apache
+
+volumes:
+  db_volume:
+
