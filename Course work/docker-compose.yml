@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+#  webapp:
+#    build: .
+#    ports:
+#      - '8080:8080'
+#    depends_on:
+#      - postgres
+#    container_name: cursov_java_app
+  postgres:
+    image: postgres:14.1-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    container_name: cursov_java_db
+    volumes:
+      - db:/var/lib/postgresql/data
+volumes:
+  db:
+    driver: local
